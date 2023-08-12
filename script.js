@@ -1,73 +1,67 @@
-score = 0;
-cross = true;
+console.log("Welcome to Tic Tac Toe")
+let music = new Audio("music.mp3")
+let audioTurn = new Audio("ting.mp3")
+let gameover = new Audio("gameover.mp3")
+let turn = "X"
+let isgameover = false;
 
-audio = new Audio('mixkit-mystwrious-bass-pulse-2298.wav');
-audiogo = new Audio('videogame-death-sound-43894.mp3');
-setTimeout(() => {
-    audio.play()
-}, 1000);
-document.onkeydown = function (e) {
-    console.log("Key code is: ", e.keyCode)
-    if (e.keyCode == 38) {
-        dino = document.querySelector('.dino');
-        dino.classList.add('animateDino');
-        setTimeout(() => {
-            dino.classList.remove('animateDino')
-        }, 700);
-    }
-    if (e.keyCode == 39) {
-        dino = document.querySelector('.dino');
-        dinoX = parseInt(window.getComputedStyle(dino, null).getPropertyValue('left'));
-        dino.style.left = dinoX + 112 + "px";
-    }
-    if (e.keyCode == 37) {
-        dino = document.querySelector('.dino');
-        dinoX = parseInt(window.getComputedStyle(dino, null).getPropertyValue('left'));
-        dino.style.left = (dinoX - 112) + "px";
-    }
+// Function to change the turn
+const changeTurn = ()=>{
+    return turn === "X"? "0": "X"
 }
 
-setInterval(() => {
-    dino = document.querySelector('.dino');
-    gameOver = document.querySelector('.gameOver');
-    obstacle = document.querySelector('.obstacle');
-
-    dx = parseInt(window.getComputedStyle(dino, null).getPropertyValue('left'));
-    dy = parseInt(window.getComputedStyle(dino, null).getPropertyValue('top'));
-
-    ox = parseInt(window.getComputedStyle(obstacle, null).getPropertyValue('left'));
-    oy = parseInt(window.getComputedStyle(obstacle, null).getPropertyValue('top'));
-
-    offsetX = Math.abs(dx - ox);
-    offsetY = Math.abs(dy - oy);
-    // console.log(offsetX, offsetY)
-    if (offsetX < 73 && offsetY < 52) {
-        gameOver.innerHTML = "Game Over - Reload to Play Again"
-        obstacle.classList.remove('obstacleAni')
-        audiogo.play();
-        setTimeout(() => {
-            audiogo.pause();
-            audio.pause();
-        }, 5000);
-    }
-    else if (offsetX < 145 && cross) {
-        score += 1;
-        updateScore(score);
-        cross = false;
-        setTimeout(() => {
-            cross = true;
-        }, 1000);
-        setTimeout(() => {
-            aniDur = parseFloat(window.getComputedStyle(obstacle, null).getPropertyValue('animation-duration'));
-            newDur = aniDur - 0.1;
-            obstacle.style.animationDuration = newDur + 's';
-            console.log('New animation duration: ', newDur)
-        }, 500);
-
-    }
-
-}, 10);
-
-function updateScore(score) {
-    scoreCont.innerHTML = "Your Score: " + score
+// Function to check for a win
+const checkWin = ()=>{
+    let boxtext = document.getElementsByClassName('boxtext');
+    let wins = [
+        [0, 1, 2, 5, 5, 0],
+        [3, 4, 5, 5, 15, 0],
+        [6, 7, 8, 5, 25, 0],
+        [0, 3, 6, -5, 15, 90],
+        [1, 4, 7, 5, 15, 90],
+        [2, 5, 8, 15, 15, 90],
+        [0, 4, 8, 5, 15, 45],
+        [2, 4, 6, 5, 15, 135],
+    ]
+    wins.forEach(e =>{
+        if((boxtext[e[0]].innerText === boxtext[e[1]].innerText) && (boxtext[e[2]].innerText === boxtext[e[1]].innerText) && (boxtext[e[0]].innerText !== "") ){
+            document.querySelector('.info').innerText = boxtext[e[0]].innerText + " Won"
+            isgameover = true
+            document.querySelector('.imgbox').getElementsByTagName('img')[0].style.width = "200px";
+            document.querySelector(".line").style.transform = `translate(${e[3]}vw, ${e[4]}vw) rotate(${e[5]}deg)`
+            document.querySelector(".line").style.width = "20vw";
+        }
+    })
 }
+
+// Game Logic
+// music.play()
+let boxes = document.getElementsByClassName("box");
+Array.from(boxes).forEach(element =>{
+    let boxtext = element.querySelector('.boxtext');
+    element.addEventListener('click', ()=>{
+        if(boxtext.innerText === ''){
+            boxtext.innerText = turn;
+            turn = changeTurn();
+            audioTurn.play();
+            checkWin();
+            if (!isgameover){
+                document.getElementsByClassName("info")[0].innerText  = "Turn for " + turn;
+            } 
+        }
+    })
+})
+
+// Add onclick listener to reset button
+reset.addEventListener('click', ()=>{
+    let boxtexts = document.querySelectorAll('.boxtext');
+    Array.from(boxtexts).forEach(element => {
+        element.innerText = ""
+    });
+    turn = "X"; 
+    isgameover = false
+    document.querySelector(".line").style.width = "0vw";
+    document.getElementsByClassName("info")[0].innerText  = "Turn for " + turn;
+    document.querySelector('.imgbox').getElementsByTagName('img')[0].style.width = "0px"
+})
+
